@@ -11,7 +11,7 @@ class Book(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    val id: Long? = null,
     val title: String,
     val author: String
 ) {
