@@ -15,5 +15,10 @@ class BookService(
         return bookRepository.save(book)
     }
 
+    @Transactional(readOnly = true)
+    fun getBooks(): List<Book> {
+        return bookRepository.findAll()
+    }
+
 
 }
