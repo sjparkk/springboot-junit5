@@ -3,6 +3,7 @@ package com.example.springbootjunit5.controller
 import com.example.springbootjunit5.domain.Book
 import com.example.springbootjunit5.service.BookService
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,8 +13,8 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
-
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 
 /**
  * Book controller unit test
@@ -63,6 +64,37 @@ class BookControllerUnitTest {
         // then
         resultAction
             .andExpect(MockMvcResultMatchers.status().isCreated)
+            .andDo(MockMvcResultHandlers.print())
+    }
+
+
+    @Test
+    fun `findAll 테스트`() {
+
+        // given
+        val books: MutableList<Book> = ArrayList()
+        books.add(Book(1L, "책 이름1", "저자1"))
+        books.add(Book(2L, "책 이름2", "저자2"))
+
+        // stub - 행동 정의
+        `when`(bookService.getBooks()).thenReturn(books)
+
+        // when
+        val resultAction = mockMvc.perform(
+            MockMvcRequestBuilders.get("/book")
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+        )
+
+        // then
+        resultAction
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect( // $ 는 전달받은 json 객체의 root element이다.
+                jsonPath("$.*", Matchers.hasSize<Any>(2))
+            )
+            .andExpect( // [0] 번째 title 속성
+                jsonPath("$.[0].title").value("책 이름1")
+            )
+            .andExpect(jsonPath("$.[0].author").value("저자1"))
             .andDo(MockMvcResultHandlers.print())
     }
 
