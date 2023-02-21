@@ -4,10 +4,7 @@ import com.example.springbootjunit5.domain.Book
 import com.example.springbootjunit5.service.BookService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class BookController(
@@ -24,5 +21,9 @@ class BookController(
         return ResponseEntity<Any?>(bookService.getBooks(), HttpStatus.OK)
     }
 
+    @GetMapping("/book/{id}")
+    fun findById(@PathVariable id: Long): ResponseEntity<*> {
+        return ResponseEntity<Book>(bookService.getBook(id), HttpStatus.OK)
+    }
 
 }

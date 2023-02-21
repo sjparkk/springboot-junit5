@@ -20,5 +20,11 @@ class BookService(
         return bookRepository.findAll()
     }
 
+    @Transactional(readOnly = true)
+    fun getBook(id: Long): Book {
+        return bookRepository.findById(id)
+            .orElseThrow { IllegalArgumentException("Book id를 확인해주세요.") }
+    }
+
 
 }
