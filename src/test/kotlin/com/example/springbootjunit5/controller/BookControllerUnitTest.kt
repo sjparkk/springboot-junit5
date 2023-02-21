@@ -5,7 +5,7 @@ import com.example.springbootjunit5.service.BookService
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -96,6 +96,48 @@ class BookControllerUnitTest {
             )
             .andExpect(jsonPath("$.[0].author").value("저자1"))
             .andDo(MockMvcResultHandlers.print())
+    }
+
+    /**
+     * Find by id 테스트
+     *
+     * 추가적으로 함수 호출에 대한 검증을 도와주는 verify 함수에 대해서 케이스 별 정리.*
+     */
+    @Test
+    fun `findById 테스트`() {
+
+        // given
+        val id = 1L
+        `when`(bookService.getBook(id)).thenReturn(Book(1L, "책 이름1", "저자1")) // stub - 행동 정의
+
+        // when
+        val resultAction = mockMvc.perform(
+            MockMvcRequestBuilders.get("/book/{id}", id)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+        )
+        // then
+        resultAction
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(jsonPath("$.title").value("책 이름1"))
+            .andDo(MockMvcResultHandlers.print())
+
+        // 함수가 한번 호출되었는지 검증
+        verify(bookService).getBook(id)
+        verify(bookService, times(1)).getBook(id)
+
+        // 함수가 두번 호출되었는지, + 숫자에 따라 횟수 변경하여 검증 가능
+        verify(bookService, times(2)).getBook(id)
+
+        // 최소 몇번 호출
+        verify(bookService, atLeastOnce()).getBook(id)
+        verify(bookService, atLeast(1)).getBook(id)
+
+        // 최대 몇번 호출
+        verify(bookService, atMostOnce()).getBook(id)
+        verify(bookService, atMost(1)).getBook(id)
+
+        // 오직 해당 함수만 실행되었는지
+        verify(bookService, only()).getBook(id)
     }
 
 }
